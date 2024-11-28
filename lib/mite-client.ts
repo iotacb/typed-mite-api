@@ -30,11 +30,11 @@ export class MiteClient {
 	 * @param accountName - The Mite account name (subdomain)
 	 * @param apiKey - The API key for authentication
 	 */
-	constructor(userAgent: string, accountName: string, apiKey: string) {
-		this.baseUrl = `https://${accountName}.mite.de/`;
-		this.client = new RestClient(userAgent, this.baseUrl);
+	constructor(accountName: string, apiKey: string, userAgent?: string) {
 		this.accountName = accountName;
 		this.apiKey = apiKey;
+		this.baseUrl = `https://${accountName}.mite.de/`;
+		this.client = new RestClient(userAgent ?? "TypedMiteApi/1.0", this.baseUrl);
 	}
 
 	/**
@@ -234,19 +234,7 @@ export class MiteClient {
 			}
 		);
 
-		if (response.statusCode === 200 && response.result) {
-			return response.result.map(({ customer }) => ({
-				...customer,
-				created_at: customer.created_at
-					? new Date(customer.created_at)
-					: customer.created_at,
-				updated_at: customer.updated_at
-					? new Date(customer.updated_at)
-					: customer.updated_at,
-			}));
-		}
-
-		return [];
+		return (await this.handleResponse(response, "customer")) as MiteCustomer[];
 	}
 
 	/**
@@ -280,18 +268,7 @@ export class MiteClient {
 			}
 		);
 
-		if (response.statusCode === 200 && response.result) {
-			return response.result.map(({ project }) => ({
-				...project,
-				created_at: project.created_at
-					? new Date(project.created_at)
-					: project.created_at,
-				updated_at: project.updated_at
-					? new Date(project.updated_at)
-					: project.updated_at,
-			}));
-		}
-		return [];
+		return (await this.handleResponse(response, "project")) as MiteProject[];
 	}
 
 	/**
@@ -307,19 +284,10 @@ export class MiteClient {
 			}
 		);
 
-		if (response.statusCode === 200 && response.result) {
-			return {
-				...response.result.project,
-				created_at: response.result.project.created_at
-					? new Date(response.result.project.created_at)
-					: response.result.project.created_at,
-				updated_at: response.result.project.updated_at
-					? new Date(response.result.project.updated_at)
-					: response.result.project.updated_at,
-			};
-		}
-
-		return null;
+		return (await this.handleResponse(
+			response,
+			"project"
+		)) as MiteProject | null;
 	}
 
 	/**
@@ -334,18 +302,7 @@ export class MiteClient {
 			}
 		);
 
-		if (response.statusCode === 200 && response.result) {
-			return response.result.map(({ service }) => ({
-				...service,
-				created_at: service.created_at
-					? new Date(service.created_at)
-					: service.created_at,
-				updated_at: service.updated_at
-					? new Date(service.updated_at)
-					: service.updated_at,
-			}));
-		}
-		return [];
+		return (await this.handleResponse(response, "service")) as MiteService[];
 	}
 
 	/**
@@ -361,19 +318,10 @@ export class MiteClient {
 			}
 		);
 
-		if (response.statusCode === 200 && response.result) {
-			return {
-				...response.result.service,
-				created_at: response.result.service.created_at
-					? new Date(response.result.service.created_at)
-					: response.result.service.created_at,
-				updated_at: response.result.service.updated_at
-					? new Date(response.result.service.updated_at)
-					: response.result.service.updated_at,
-			};
-		}
-
-		return null;
+		return (await this.handleResponse(
+			response,
+			"service"
+		)) as MiteService | null;
 	}
 
 	/**
@@ -388,18 +336,7 @@ export class MiteClient {
 			}
 		);
 
-		if (response.statusCode === 200 && response.result) {
-			return response.result.map(({ user }) => ({
-				...user,
-				created_at: user.created_at
-					? new Date(user.created_at)
-					: user.created_at,
-				updated_at: user.updated_at
-					? new Date(user.updated_at)
-					: user.updated_at,
-			}));
-		}
-		return [];
+		return (await this.handleResponse(response, "user")) as MiteUser[];
 	}
 
 	/**
@@ -415,18 +352,6 @@ export class MiteClient {
 			}
 		);
 
-		if (response.statusCode === 200 && response.result) {
-			return {
-				...response.result.user,
-				created_at: response.result.user.created_at
-					? new Date(response.result.user.created_at)
-					: response.result.user.created_at,
-				updated_at: response.result.user.updated_at
-					? new Date(response.result.user.updated_at)
-					: response.result.user.updated_at,
-			};
-		}
-
-		return null;
+		return (await this.handleResponse(response, "user")) as MiteUser | null;
 	}
 }
